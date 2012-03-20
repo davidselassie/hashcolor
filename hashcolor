@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+# David Selassie
+# March 13, 2012
+# hashcolor
+
+# Takes this computer's mac address and username and makes it into a color triad.
+
+require 'rubygems'
+require 'color'
+require './colorfix'
+require 'macaddr'
+require 'digest'
+
+angle = 20.0
+
+# Find the main hue.
+h1 = Digest::MD5.hexdigest(Mac::address + ENV['USER']).to_i(16) + 90
+# This needs to be an integer to work sensibly:
+h1 = h1 % 360
+# Make a angle triad.
+h2 = (h1 + 180.0 - angle) % 360.0
+h3 = (h1 + 180.0 + angle) % 360.0
+
+c1 = Color::HSL.new(h1, 100, 50)
+c2 = Color::HSL.new(h2, 100, 50)
+c3 = Color::HSL.new(h3, 100, 50)
+
+puts 'Put the following in your bashrc or profile:'
+puts
+puts ('export C1="\[\033[38;5;' + c1.to_xterm.to_s + 'm\]"').colored(c1)
+puts ('export C2="\[\033[38;5;' + c2.to_xterm.to_s + 'm\]"').colored(c2)
+puts ('export C3="\[\033[38;5;' + c3.to_xterm.to_s + 'm\]"').colored(c3)
+puts 'export NC="\[\033[0m\]"'
+puts
+puts 'Then use $C1 $C2 $C3 in your PS1 to start writing in that color.'
+puts '$NC will revert to default colors.'
