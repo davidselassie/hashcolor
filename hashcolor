@@ -12,6 +12,7 @@ require './colorfix'
 require 'macaddr'
 require 'digest'
 
+# How far off complementary the second two hues h2, h3 are.
 angle = 20.0
 
 # Find the main hue.

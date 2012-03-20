@@ -2,11 +2,13 @@
 
 # David Selassie
 # March 19, 2012
+# Extends the Color module from the color gem to add terminal color methods.
 
 require 'rubygems'
 require 'color'
 
 module Color
+    # Hex values for the 256 XTerm colors. Keys are those indexes.
     XTERM_TABLE = {
     0   => 0x000000, 1   => 0x800000, 2   => 0x008000, 3   => 0x808000,
     4   => 0x000080, 5   => 0x800080, 6   => 0x008080, 7   => 0xc0c0c0,
@@ -78,21 +80,25 @@ module Color
         def to_xterm
             to_hsl.to_xterm
         end
-    
+
+        # Makes this color the terminal foreground color.
         def set_fg
             STDOUT.write "\033[38;5;#{to_xterm}m"
         end
-    
+
+        # Makes this color the terminal background color.
         def set_bg
             STDOUT.write "\033[48;5;#{to_xterm}m"
         end
-    
+
+        # Resets terminal to default colors.
         def reset
             STDOUT.write "\033[0m"
         end
     end
-    
+
     class HSL
+        # Returns the index of the closest XTerm color.
         def to_xterm
             closest_i = nil
             closest_dr = 255 * 3
@@ -101,7 +107,7 @@ module Color
                 g = (hex & 0x00ff00) >> 8
                 b = (hex & 0x0000ff)
                 o = Color::RGB.new(r, g, b).to_hsl
-    
+
                 # Put extra weight on the hue.
                 dr = (o.h - self.h).abs * 1.5
                     + (o.s - self.s).abs + (o.l - self.l).abs
@@ -116,6 +122,7 @@ module Color
 end
 
 class String
+    # Call on a string to add the commands to color that string to it.
     def colored(i)
         if i.respond_to? :to_xterm then
             i = i.to_xterm
