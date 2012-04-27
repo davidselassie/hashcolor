@@ -16,6 +16,8 @@ require 'trollop'
 opts = Trollop::options do
   opt :save, 'Save color variable definitions', :default => '~/.hashcolor'
   opt :no_save, 'Do not save'
+  opt :mac, 'Force a MAC address', :default => Mac::address
+  opt :user, 'Force a username', :default => ENV['USER']
 end
 if opts[:no_save] then
   opts[:save] = nil
@@ -25,7 +27,7 @@ end
 angle = 20.0
 
 # Find the main hue.
-h1 = Digest::MD5.hexdigest(Mac::address + ENV['USER']).to_i(16) + 90
+h1 = Digest::MD5.hexdigest(opts[:mac] + opts[:user]).to_i(16) + 90
 # This needs to be an integer to work sensibly:
 h1 = h1 % 360
 # Make a angle triad.
