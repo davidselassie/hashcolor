@@ -42,20 +42,20 @@ puts 'Put the following in your bashrc or profile:'
 puts
 if opts[:save] then
   savefile = File.new(File.expand_path(opts[:save]), 'w')
-  savefile.puts "# Made with colorhash from user #{ENV['USER']} and MAC #{Mac::address}"
+  savefile.puts "# Made with colorhash from user #{opts[:user]} and MAC #{opts[:mac]}"
   savefile.puts "# http://github.com/selassid/hashcolor"
-  savefile.puts 'export C1="\[\033[38;5;' + c1.to_xterm.to_s + 'm\]"'
-  savefile.puts 'export C2="\[\033[38;5;' + c2.to_xterm.to_s + 'm\]"'
-  savefile.puts 'export C3="\[\033[38;5;' + c3.to_xterm.to_s + 'm\]"'
-  savefile.puts 'export NC="\[\033[0m\]"'
+  savefile.puts 'export C1="\033[38;5;' + c1.to_xterm.to_s + 'm"'
+  savefile.puts 'export C2="\033[38;5;' + c2.to_xterm.to_s + 'm"'
+  savefile.puts 'export C3="\033[38;5;' + c3.to_xterm.to_s + 'm"'
+  savefile.puts 'export NC="\033[0m"'
 
   puts "source #{opts[:save]}"
 else
-  puts(('export C1="\[\033[38;5;' + c1.to_xterm.to_s + 'm\]"').colored(c1))
-  puts(('export C2="\[\033[38;5;' + c2.to_xterm.to_s + 'm\]"').colored(c2))
-  puts(('export C3="\[\033[38;5;' + c3.to_xterm.to_s + 'm\]"').colored(c3))
-  puts 'export NC="\[\033[0m\]"'
+  puts(('export C1="\033[38;5;' + c1.to_xterm.to_s + 'm"').colored(c1))
+  puts(('export C2="\033[38;5;' + c2.to_xterm.to_s + 'm"').colored(c2))
+  puts(('export C3="\033[38;5;' + c3.to_xterm.to_s + 'm"').colored(c3))
+  puts 'export NC="\033[0m"'
 end
 puts
-puts 'Then use ' + '$C1 '.colored(c1) + '$C2 '.colored(c2) + '$C3 '.colored(c3) + 'in your PS1 to start writing in that color.'
-puts '$NC will revert to default colors.'
+puts 'Then use ' + '\[$C1\] '.colored(c1) + '\[$C2\] '.colored(c2) + '\[$C3\] '.colored(c3) + 'in your PS1 to start writing in that color.'
+puts '\[$NC\] will revert to default colors.'
