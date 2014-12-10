@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 # David Selassie
-# March 13, 2012
 # hashcolor
 
 # Takes this computer's mac address and username and makes it into a color triad.
@@ -14,17 +13,18 @@ require 'digest'
 require 'trollop'
 
 opts = Trollop::options do
-  opt :save, 'Save color variable definitions', :default => '~/.hashcolor'
-  opt :no_save, 'Do not save'
+  opt :format, 'Output format ("sh" or "el")', :default => 'sh'
   opt :mac, 'Force a MAC address', :default => Mac::address
   opt :user, 'Force a username', :default => ENV['USER']
-end
-if opts[:no_save] then
-  opts[:save] = nil
+  opt :saturation, 'Saturation', :default => 100.0
+  opt :lightness, 'Lightness', :default => 70.0
+  opt :angle, 'Angle', :default => 20.0
 end
 
 # How far off complementary the second two hues h2, h3 are.
-angle = 20.0
+angle = opts[:angle]
+saturation = opts[:saturation]
+lightness = opts[:lightness]
 
 # Find the main hue.
 h1 = Digest::MD5.hexdigest(opts[:mac] + opts[:user]).to_i(16) + 90
@@ -34,28 +34,21 @@ h1 = h1 % 360
 h2 = (h1 + 180.0 - angle) % 360.0
 h3 = (h1 + 180.0 + angle) % 360.0
 
-c1 = Color::HSL.new(h1, 100, 50)
-c2 = Color::HSL.new(h2, 100, 50)
-c3 = Color::HSL.new(h3, 100, 50)
+c1 = Color::HSL.new(h1, saturation, lightness)
+c2 = Color::HSL.new(h2, saturation, lightness)
+c3 = Color::HSL.new(h3, saturation, lightness)
 
-puts 'Put the following in your bashrc or profile:'
-puts
-if opts[:save] then
-  savefile = File.new(File.expand_path(opts[:save]), 'w')
-  savefile.puts "# Made with colorhash from user #{opts[:user]} and MAC #{opts[:mac]}"
-  savefile.puts "# http://github.com/selassid/hashcolor"
-  savefile.puts 'export C1="\[\033[38;5;' + c1.to_xterm.to_s + 'm\]"'
-  savefile.puts 'export C2="\[\033[38;5;' + c2.to_xterm.to_s + 'm\]"'
-  savefile.puts 'export C3="\[\033[38;5;' + c3.to_xterm.to_s + 'm\]"'
-  savefile.puts 'export NC="\[\033[0m\]"'
-
-  puts "source #{opts[:save]}"
-else
-  puts(('export C1="\[\033[38;5;' + c1.to_xterm.to_s + 'm\]"').colored(c1))
-  puts(('export C2="\[\033[38;5;' + c2.to_xterm.to_s + 'm\]"').colored(c2))
-  puts(('export C3="\[\033[38;5;' + c3.to_xterm.to_s + 'm\]"').colored(c3))
+if opts[:format] == 'sh' then
+  puts "# Made with colorhash from user #{opts[:user]} and MAC #{opts[:mac]}"
+  puts "# http://github.com/selassid/hashcolor"
+  puts 'export C1="\[\033[38;5;' + c1.to_xterm.to_s + 'm\]"'
+  puts 'export C2="\[\033[38;5;' + c2.to_xterm.to_s + 'm\]"'
+  puts 'export C3="\[\033[38;5;' + c3.to_xterm.to_s + 'm\]"'
   puts 'export NC="\[\033[0m\]"'
+elsif opts[:format] == 'el' then
+  puts "; Made with colorhash from user #{opts[:user]} and MAC #{opts[:mac]}"
+  puts "; http://github.com/selassid/hashcolor"
+  puts "(defvar colorhash-1 \"#{c1.html}\")"
+  puts "(defvar colorhash-2 \"#{c2.html}\")"
+  puts "(defvar colorhash-3 \"#{c3.html}\")"
 end
-puts
-puts 'Then use ' + '$C1 '.colored(c1) + '$C2 '.colored(c2) + '$C3 '.colored(c3) + 'in your PS1 to start writing in that color.'
-puts '$NC will revert to default colors.'
